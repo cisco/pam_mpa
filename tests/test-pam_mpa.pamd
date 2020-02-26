@@ -1,0 +1,5 @@
+#%PAM-1.0
+auth required pam_mpa.so debug usersfile=/etc/pam_mpa.userslist
+account required pam_warn.so
+password required pam_warn.so
+session required pam_warn.so
