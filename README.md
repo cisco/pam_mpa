@@ -1,5 +1,7 @@
 # PAM Multi-Party Authentication Module
 
+![C/C++ CI](https://github.com/cisco/pam_mpa/workflows/C/C++%20CI/badge.svg)
+
 The PAM Multi-Party Authentication Module (pam-mpa) can be used to require
 multiple local users to authenticate to authorize access to a single account.
 
