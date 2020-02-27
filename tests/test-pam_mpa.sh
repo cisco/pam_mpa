@@ -5,7 +5,16 @@ TESTDIR="${BASEDIR}/tests"
 SAFETY_FILE="${TESTDIR}/.tests_permitted"
 MODULE_FILENAME="pam_mpa.so"
 MODULE_SRC="${BASEDIR}/src/${MODULE_FILENAME}"
-MODULE_LIVE="/lib64/security/${MODULE_FILENAME}"
+
+if [[ -d '/lib64/security/' ]]; then
+  MODULE_LIVE="/lib64/security/${MODULE_FILENAME}"
+elif [[ -d '/lib/x86_64-linux-gnu/security/' ]]; then
+  MODULE_LIVE="/lib/x86_64-linux-gnu/security/${MODULE_FILENAME}"
+else
+  echo "Failed to determine where to put module for testing; exiting"
+  exit 1
+fi
+
 USERSLIST="/etc/pam_mpa.userslist"
 
 YESTERDAY=$(($(date +%s)/(60*60*24) - 1))
