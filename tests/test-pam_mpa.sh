@@ -77,6 +77,7 @@ function auth() {
       pamtester -v $service $account authenticate 2>&1
 }
 
+TESTS_FAILED=0
 function run_test() {
   local desc="$1"
   shift
@@ -110,6 +111,7 @@ function run_test() {
     echo -e "  \e[37;1minput:\e[0m\n${input}"
     echo -e "  \e[37;1moutput:\e[0m\n${buf}"
     echo ""
+    TESTS_FAILED=1
   fi
 }
 
@@ -314,3 +316,5 @@ run_test "authentication fails if required authorizers is negative" \
     "user=$TPA_ACCOUNT" \
     "input='$AUTH1\n$AUTH1_PW\n$AUTH2\n$AUTH2_PW\n'" \
     "result='pamtester: Authentication failure'"
+
+exit $TESTS_FAILED
