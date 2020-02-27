@@ -11,13 +11,9 @@
 #include <security/pam_modutil.h>
 #include <security/pam_ext.h>
 
-#define LOG(fmt, ...) do {                                              \
-    char __prefix[256] = {0}, __msg[1024] = {0};                        \
-    snprintf(__prefix, sizeof(__prefix), "%s@%d %s(): ",                \
-            __FILE__, __LINE__,  __FUNCTION__);                         \
-    snprintf(__msg, sizeof(__msg), "%s" fmt, __prefix, ## __VA_ARGS__); \
-    pam_syslog(pamh, 4, __msg);                                         \
-} while (0)
+#define LOG(fmt, ...) \
+    pam_syslog(pamh, 4, "%s@%d %s(): " fmt, __FILE__, __LINE__, \
+            __FUNCTION__, ## __VA_ARGS__)
 #define DBG(x...) if (cfg.debug) { LOG(x); }
 
 #define CHKPWD_HELPER "/sbin/unix_chkpwd"
@@ -308,7 +304,6 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
     int retval, i, j, count, authorized;
     const char *account;
     char *authorizer = NULL, *password = NULL;
-    char prompt[64] = {0};
 
     /* parse the options for this module */
     parse_cfg(pamh, flags, argc, argv, &cfg);
@@ -360,9 +355,8 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
     for (i = 1; i <= mpa_cfg->required; i++)
     {
         /* prompt for the authorizer's username */
-        snprintf(prompt, sizeof(prompt),
+        pam_prompt(pamh, PAM_PROMPT_ECHO_ON, &authorizer,
                 "authorizer [%d of %d]: ", i, mpa_cfg->required);
-        pam_prompt(pamh, PAM_PROMPT_ECHO_ON, &authorizer, prompt);
         if (authorizer == NULL)
         {
             DBG("No authorizer %d username provided; aborting", i);
@@ -370,9 +364,8 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
         }
 
         /* prompt for the password */
-        snprintf(prompt, sizeof(prompt),
+        pam_prompt(pamh, PAM_PROMPT_ECHO_OFF, &password,
                 "  password [%d of %d]: ", i, mpa_cfg->required);
-        pam_prompt(pamh, PAM_PROMPT_ECHO_OFF, &password, prompt);
         if (password == NULL)
         {
             DBG("No authorizer %d password provided; aborting", i);
